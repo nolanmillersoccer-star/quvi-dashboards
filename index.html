@@ -605,7 +605,9 @@ async function loadExpenses() {
     const data = await resp.json();
     if (!resp.ok) return;
 
-    const total = (data.results || []).reduce((s, p) => s + (p.properties?.Amount?.number || 0), 0);
+    const total = (data.results || [])
+      .filter(p => !p.archived && (p.properties?.Type?.select?.name || 'Actual') === 'Actual')
+      .reduce((s, p) => s + (p.properties?.Amount?.number || 0), 0);
     const remaining = 9209 - total;
     const pct = Math.min(100, (total / 9209) * 100).toFixed(1);
 
