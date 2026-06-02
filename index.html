@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quvi Growth Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<style>
+:root {
+  --black: #0D0D0D;
+  --surface: #111111;
+  --elevated: #1A1A1A;
+  --red: #8B1A1A;
+  --red-dim: rgba(139,26,26,0.15);
+  --cream: #F2E8D0;
+  --muted: #6A6A6A;
+  --border: #222222;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--black);
+  color: var(--cream);
+  font-family: 'Playfair Display', Georgia, serif;
+  min-height: 100vh;
+  padding: 28px 24px 48px;
+}
+
+/* ── MARQUEE HEADER ── */
+.header-wrap {
+  position: relative;
+  margin-bottom: 32px;
+}
+.marquee {
+  border: 1.5px dashed var(--red);
+  padding: 28px 32px 22px;
+  position: relative;
+}
+/* dots – placed OUTSIDE content flow so they never overlap text */
+.dot {
+  position: absolute;
+  width: 7px; height: 7px;
+  background: var(--red);
+  border-radius: 50%;
+  /* punch a black background so dash line doesn't show through */
+  box-shadow: 0 0 0 3px var(--black);
+  z-index: 2;
+}
+.dot.tl { top: -4px; left: -4px; }
+.dot.tr { top: -4px; right: -4px; }
+.dot.bl { bottom: -4px; left: -4px; }
+.dot.br { bottom: -4px; right: -4px; }
+.dot.mt { top: -4px; left: calc(50% - 3.5px); }
+.dot.mb { bottom: -4px; left: calc(50% - 3.5px); }
+.dot.ml { left: -4px; top: calc(50% - 3.5px); }
+.dot.mr { right: -4px; top: calc(50% - 3.5px); }
+
+.header-eyebrow {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 3.5px;
+  color: var(--red);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.header-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 40px;
+  color: var(--cream);
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.header-sub {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--muted);
+}
+.header-date {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 14px;
+}
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--red);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.section-wrap { margin-bottom: 28px; }
+
+/* ── GRID ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+}
+.card-label {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.card-value {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 34px;
+  color: var(--cream);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.card-meta {
+  font-family: 'Playfair Display', serif;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* ── PROGRESS ── */
+.progress-track {
+  height: 2px;
+  background: var(--elevated);
+  margin-top: 14px;
+}
+.progress-fill {
+  height: 2px;
+  background: var(--red);
+}
+.progress-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+.progress-row span {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* ── COUNTDOWN ── */
+.countdown-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 20px;
+  text-align: center;
+}
+.countdown-card.primary { border-color: var(--red); }
+.countdown-num {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 52px;
+  color: var(--cream);
+  line-height: 1;
+  display: block;
+}
+.countdown-unit {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--red);
+  text-transform: uppercase;
+  margin: 6px 0 8px;
+  display: block;
+}
+.countdown-event {
+  font-family: 'Playfair Display', serif;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--muted);
+  display: block;
+}
+
+/* ── CHART CARD ── */
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 20px;
+}
+.chart-wrap { position: relative; height: 160px; margin-top: 14px; }
+
+/* ── TASKS ── */
+.task-list { background: var(--surface); border: 1px solid var(--border); }
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.task-item:last-child { border-bottom: none; }
+.task-badge {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid;
+  white-space: nowrap;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.badge-high { color: #A82020; border-color: #A82020; }
+.badge-medium { color: #B07A20; border-color: #B07A20; }
+.badge-low { color: var(--muted); border-color: var(--muted); }
+.badge-progress { color: #5A8A5A; border-color: #5A8A5A; }
+.task-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  color: var(--cream);
+  line-height: 1.4;
+  flex: 1;
+}
+.task-due {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+.task-empty {
+  padding: 24px 18px;
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* ── MILESTONES ── */
+.milestone-list { background: var(--surface); border: 1px solid var(--border); }
+.milestone-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.milestone-item:last-child { border-bottom: none; }
+.ms-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  border: 1px solid var(--muted);
+  background: transparent;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+.ms-dot.done { background: var(--red); border-color: var(--red); }
+.ms-dot.active { border-color: var(--red); box-shadow: 0 0 5px var(--red); }
+.ms-text { flex: 1; }
+.ms-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  color: var(--cream);
+  margin-bottom: 2px;
+}
+.ms-title.done { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--red); }
+.ms-date {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* ── BUDGET ── */
+.budget-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+.budget-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.budget-row:last-child { border-bottom: none; }
+.budget-label { font-family: 'Playfair Display', serif; font-size: 13px; color: var(--cream); }
+.budget-amount {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.budget-amount.spent { color: #A82020; }
+.budget-amount.remaining { color: #5A8A5A; }
+
+/* ── EXPENSE LINK ── */
+.expense-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--red);
+  text-decoration: none;
+  border: 1px solid var(--red);
+  padding: 6px 12px;
+  cursor: pointer;
+  background: transparent;
+}
+.expense-link:hover { background: var(--red-dim); }
+
+/* ── LOADING ── */
+.loading {
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--muted);
+  padding: 20px 18px;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header-wrap section-wrap">
+  <div class="marquee">
+    <div class="dot tl"></div><div class="dot tr"></div>
+    <div class="dot bl"></div><div class="dot br"></div>
+    <div class="dot mt"></div><div class="dot mb"></div>
+    <div class="dot ml"></div><div class="dot mr"></div>
+    <div class="header-eyebrow">Growth Dashboard · 2026</div>
+    <div class="header-title">QUVI</div>
+    <div class="header-sub">The decision layer for streaming.</div>
+    <div class="header-date" id="last-updated"></div>
+  </div>
+</div>
+
+<!-- COUNTDOWNS -->
+<div class="section-wrap">
+  <div class="section-label">Countdowns</div>
+  <div class="grid-3">
+    <div class="countdown-card">
+      <span class="countdown-num" id="d-foundation"></span>
+      <span class="countdown-unit">Days Left</span>
+      <span class="countdown-event">Foundation locked — Jun 30</span>
+    </div>
+    <div class="countdown-card primary">
+      <span class="countdown-num" id="d-beta"></span>
+      <span class="countdown-unit">Days to Beta</span>
+      <span class="countdown-event">UMich closed beta — Sep 20</span>
+    </div>
+    <div class="countdown-card">
+      <span class="countdown-num" id="d-launch"></span>
+      <span class="countdown-unit">Days to Launch</span>
+      <span class="countdown-event">Public launch — Dec 10</span>
+    </div>
+  </div>
+</div>
+
+<!-- BETA TARGETS -->
+<div class="section-wrap">
+  <div class="section-label">Beta Targets</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-label">Beta Users</div>
+      <div class="card-value" id="user-count">0</div>
+      <div class="card-meta">Goal: 1,000 at UMich</div>
+      <div class="progress-track"><div class="progress-fill" id="user-bar" style="width:0%"></div></div>
+      <div class="progress-row">
+        <span id="user-label">0 / 1,000</span>
+        <span id="user-pct">0%</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Validation Interviews</div>
+      <div class="card-value" id="interview-count">0</div>
+      <div class="card-meta">Goal: 25 before build starts</div>
+      <div class="progress-track"><div class="progress-fill" id="interview-bar" style="width:0%"></div></div>
+      <div class="progress-row">
+        <span id="interview-label">0 / 25</span>
+        <span id="interview-pct">0%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GROWTH MODEL -->
+<div class="section-wrap">
+  <div class="section-label">2026 User Growth</div>
+  <div class="chart-card">
+    <div class="card-label">Projected vs Actual · Beta Sep 20 → Public Dec 10 → 1,000</div>
+    <div class="chart-wrap"><canvas id="growthChart"></canvas></div>
+  </div>
+</div>
+
+<!-- NOTION TASKS -->
+<div class="section-wrap">
+  <div class="section-label">Open Tasks</div>
+  <div class="task-list" id="task-list">
+    <div class="loading">Loading tasks from Notion...</div>
+  </div>
+</div>
+
+<!-- MILESTONES -->
+<div class="section-wrap">
+  <div class="section-label">2026 Milestones</div>
+  <div class="milestone-list">
+    <div class="milestone-item"><div class="ms-dot done"></div><div class="ms-text"><div class="ms-title done">LLC filed</div><div class="ms-date">Complete</div></div></div>
+    <div class="milestone-item"><div class="ms-dot done"></div><div class="ms-text"><div class="ms-title done">Brand guidelines locked</div><div class="ms-date">Complete</div></div></div>
+    <div class="milestone-item"><div class="ms-dot active"></div><div class="ms-text"><div class="ms-title">25–30 validation interviews</div><div class="ms-date">In progress · Jun 2026</div></div></div>
+    <div class="milestone-item"><div class="ms-dot"></div><div class="ms-text"><div class="ms-title">Foundation locked — stack, TMDB, onboarding, rating</div><div class="ms-date">Jun 30, 2026</div></div></div>
+    <div class="milestone-item"><div class="ms-dot"></div><div class="ms-text"><div class="ms-title">USPTO Class 42 trademark filed</div><div class="ms-date">Before beta</div></div></div>
+    <div class="milestone-item"><div class="ms-dot"></div><div class="ms-text"><div class="ms-title">Full build — Watch Tonight, streaming filter, rec engine v1</div><div class="ms-date">Jul – Aug 2026</div></div></div>
+    <div class="milestone-item"><div class="ms-dot"></div><div class="ms-text"><div class="ms-title">Closed beta — University of Michigan</div><div class="ms-date">Sep 20, 2026</div></div></div>
+    <div class="milestone-item"><div class="ms-dot"></div><div class="ms-text"><div class="ms-title">Day-30 retention proven + real CPI measured</div><div class="ms-date">Oct 2026</div></div></div>
+    <div class="milestone-item"><div class="ms-dot"></div><div class="ms-text"><div class="ms-title">Public launch</div><div class="ms-date">Dec 10, 2026</div></div></div>
+  </div>
+</div>
+
+<!-- BOOTSTRAP BUDGET -->
+<div class="section-wrap">
+  <div class="section-label">Bootstrap Budget · 2026</div>
+  <div class="budget-card">
+    <div class="budget-row">
+      <span class="budget-label">Total budget</span>
+      <span class="budget-amount">$9,000</span>
+    </div>
+    <div class="budget-row">
+      <span class="budget-label">Spent to date</span>
+      <span class="budget-amount spent" id="spent-total">$0</span>
+    </div>
+    <div class="budget-row">
+      <span class="budget-label">Remaining</span>
+      <span class="budget-amount remaining" id="remaining-total">$9,000</span>
+    </div>
+    <div class="progress-track" style="margin-top:14px">
+      <div class="progress-fill" id="budget-bar" style="width:0%"></div>
+    </div>
+    <div class="progress-row">
+      <span id="budget-label">$0 spent</span>
+      <span id="budget-pct">0% of $9,000</span>
+    </div>
+    <button class="expense-link" onclick="window.open('https://claude.ai','_blank')" style="margin-top:16px">→ Open Expense Tracker</button>
+  </div>
+</div>
+
+<script>
+// ── DATES ──
+document.getElementById('last-updated').textContent =
+  'Updated ' + new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+
+function daysUntil(str) {
+  const t = new Date(str); t.setHours(0,0,0,0);
+  const n = new Date(); n.setHours(0,0,0,0);
+  return Math.max(0, Math.round((t - n) / 86400000));
+}
+document.getElementById('d-foundation').textContent = daysUntil('2026-06-30');
+document.getElementById('d-beta').textContent = daysUntil('2026-09-20');
+document.getElementById('d-launch').textContent = daysUntil('2026-12-10');
+
+// ── GROWTH CHART ──
+// Projected: 0 before beta, S-curve Sep–Dec to 1000
+const labels = ['Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const projected = [0, 0, 0, 50, 350, 750, 1000];
+const actual    = [0, null, null, null, null, null, null]; // update as beta progresses
+
+const ctx = document.getElementById('growthChart').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'Projected',
+        data: projected,
+        borderColor: '#8B1A1A',
+        backgroundColor: 'rgba(139,26,26,0.07)',
+        borderWidth: 2,
+        pointBackgroundColor: '#8B1A1A',
+        pointRadius: 4,
+        tension: 0.45,
+        fill: true
+      },
+      {
+        label: 'Actual',
+        data: actual,
+        borderColor: '#F2E8D0',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderDash: [4,4],
+        pointBackgroundColor: '#F2E8D0',
+        pointRadius: 4,
+        tension: 0.3,
+        fill: false,
+        spanGaps: false
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        labels: {
+          color: '#6A6A6A',
+          font: { family: 'Libre Baskerville', size: 9 },
+          boxWidth: 20,
+          padding: 14
+        }
+      },
+      tooltip: {
+        backgroundColor: '#111111',
+        borderColor: '#8B1A1A',
+        borderWidth: 1,
+        titleColor: '#F2E8D0',
+        bodyColor: '#6A6A6A',
+        titleFont: { family: 'Libre Baskerville', size: 9 },
+        bodyFont: { family: 'Playfair Display', size: 12 },
+        callbacks: { label: c => (c.parsed.y ?? '—') + ' users' }
+      }
+    },
+    scales: {
+      x: { grid: { color: '#1A1A1A' }, ticks: { color: '#6A6A6A', font: { family: 'Libre Baskerville', size: 8 } } },
+      y: {
+        grid: { color: '#1A1A1A' },
+        ticks: {
+          color: '#6A6A6A',
+          font: { family: 'Libre Baskerville', size: 8 },
+          callback: v => v >= 1000 ? (v/1000).toFixed(0)+'K' : v
+        }
+      }
+    }
+  }
+});
+
+// ── LOAD TASKS FROM NOTION ──
+async function loadTasks() {
+  const el = document.getElementById('task-list');
+  try {
+    const r = await window.cowork.callMcpTool(
+      'mcp__583af839-e66f-4a73-9d43-82c029704119__notion-search',
+      { query: 'quvi', query_type: 'internal', page_size: 25, max_highlight_length: 80 }
+    );
+    const results = r?.results || [];
+    // Filter for pages that are likely tasks (not databases/big pages)
+    const tasks = results.filter(p =>
+      p.type === 'page' &&
+      !['QUVI Business OS','Quvi Tasks','Quvi Projects','Quvi Meeting Notes',
+        'Quvi Weekly Brief','Quvi Weekly Recap','Quvi Quarterly Goals',
+        'Past Quvi Documents','Quvi To Do List','Quvi Growth Dashboard'].includes(p.title)
+    ).slice(0, 12);
+
+    if (!tasks.length) {
+      el.innerHTML = '<div class="task-empty">No open tasks found. Add tasks in Notion to see them here.</div>';
+      return;
+    }
+    el.innerHTML = tasks.map(t => {
+      const priority = t.properties?.Priority || '';
+      const status = t.properties?.Status || 'Not started';
+      const due = t.properties?.['Due date'] || '';
+      const badgeClass = priority === 'High' ? 'badge-high' :
+                         priority === 'Medium' ? 'badge-medium' :
+                         status === 'In progress' ? 'badge-progress' : 'badge-low';
+      const badgeText = status === 'In progress' ? 'In Progress' : (priority || 'Task');
+      const dueStr = due ? new Date(due).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+      return `<div class="task-item">
+        <span class="task-badge ${badgeClass}">${badgeText}</span>
+        <span class="task-name">${t.title}</span>
+        ${dueStr ? `<span class="task-due">${dueStr}</span>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="task-empty">Couldn\'t load tasks. Check Notion connection.</div>';
+  }
+}
+
+// ── LOAD EXPENSES FROM NOTION ──
+async function loadExpenses() {
+  try {
+    const r = await window.cowork.callMcpTool(
+      'mcp__583af839-e66f-4a73-9d43-82c029704119__notion-search',
+      { query: 'quvi expenses', query_type: 'internal', page_size: 50, max_highlight_length: 0 }
+    );
+    const expenses = (r?.results || []).filter(p =>
+      p.url?.includes('56f63e2e') || (p.type === 'page' && p.properties?.Amount !== undefined)
+    );
+    const total = expenses.reduce((s, e) => s + (parseFloat(e.properties?.Amount) || 0), 0);
+    const remaining = 9000 - total;
+    const pct = Math.min(100, (total / 9000) * 100).toFixed(1);
+
+    document.getElementById('spent-total').textContent = '$' + total.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('remaining-total').textContent = '$' + remaining.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('budget-bar').style.width = pct + '%';
+    document.getElementById('budget-label').textContent = '$' + total.toFixed(0) + ' spent';
+    document.getElementById('budget-pct').textContent = pct + '% of $9,000';
+  } catch(e) {
+    // silent — show $0 defaults
+  }
+}
+
+loadTasks();
+loadExpenses();
+</script>
+</body>
+</html>
