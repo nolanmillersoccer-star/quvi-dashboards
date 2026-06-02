@@ -313,22 +313,6 @@ const HEADERS = {
 };
 const BUDGET = 9209;
 
-const BUDGET_LINES = [
-  { name: 'Lovable subscription',       note: '$30/mo · front-end build',               est: 360  },
-  { name: 'AWS hosting',                note: 'Beta scale, starts Sep \'26',             est: 800  },
-  { name: 'TMDB API',                   note: 'Free under 1M req/day',                   est: 0    },
-  { name: 'Domain (watchquvi.com)',      note: '~$200/mo via Namecheap, starts May \'26', est: 1600 },
-  { name: 'Apple Developer account',    note: 'Required for App Store',                  est: 99   },
-  { name: 'LLC filing + legal',         note: 'U of M Law Clinic — pro bono',            est: 0    },
-  { name: 'USPTO trademark filing',     note: 'Quvi word mark, Class 42',                est: 350  },
-  { name: 'Privacy policy + ToS',       note: 'U of M Law Clinic — pro bono',            est: 0    },
-  { name: 'Crash reporting + analytics',note: 'Sentry + Mixpanel free tiers',            est: 0    },
-  { name: 'Beta paid test',             note: '$500 split across Meta + TikTok',          est: 500  },
-  { name: 'Pre-launch micro-influencer',note: '1–2 posts, early-access framing',         est: 300  },
-  { name: 'Year 1 paid media ramp',     note: 'Q1–Q4 \'27, scaling to $15K target',     est: 5000 },
-  { name: 'Misc',                       note: 'App Store assets, screen exports, fees',  est: 500  },
-];
-
 const CAT_COLORS = {
   Legal:'#8B1A1A', Tech:'#1A4A8B', Design:'#5A1A8B',
   Marketing:'#8B4A1A', Operations:'#4A4A4A', Other:'#3A3A3A'
@@ -356,30 +340,31 @@ function fmt(n) {
 }
 
 // ── RENDER ──
-function renderAll(expenses) {
-  const total = expenses.reduce((s,e) => s + (e.amount||0), 0);
+// estimated = Type:"Estimated" entries, actuals = Type:"Actual" entries
+function renderAll(estimated, actuals) {
+  const total = actuals.reduce((s,e) => s + (e.amount||0), 0);
   const remaining = BUDGET - total;
   const pct = Math.min(100, (total / BUDGET) * 100);
 
   document.getElementById('stat-spent').textContent = fmt(total);
   document.getElementById('stat-remaining').textContent = fmt(remaining);
-  document.getElementById('stat-count').textContent = expenses.length + ' expense' + (expenses.length !== 1 ? 's' : '') + ' logged';
+  document.getElementById('stat-count').textContent = actuals.length + ' actual expense' + (actuals.length !== 1 ? 's' : '') + ' logged';
   document.getElementById('stat-pct').textContent = (100 - pct).toFixed(1) + '% of budget left';
   document.getElementById('budget-bar').style.width = pct + '%';
   document.getElementById('bar-left').textContent = fmt(total) + ' spent';
   document.getElementById('bar-right').textContent = fmt(remaining) + ' remaining';
 
-  // Card breakdown
+  // Card breakdown (actuals only)
   ['Nolan','Patrick','Company'].forEach(person => {
-    const pexp = expenses.filter(e => e.card === person);
+    const pexp = actuals.filter(e => e.card === person);
     const ptotal = pexp.reduce((s,e) => s + (e.amount||0), 0);
     document.getElementById('card-' + person.toLowerCase()).textContent = fmt(ptotal);
     document.getElementById('card-' + person.toLowerCase() + '-count').textContent = pexp.length + ' expense' + (pexp.length !== 1 ? 's' : '');
   });
 
-  // Category chart
+  // Category chart (actuals only)
   const cats = {};
-  expenses.forEach(e => { const c = e.category||'Other'; cats[c] = (cats[c]||0) + (e.amount||0); });
+  actuals.forEach(e => { const c = e.category||'Other'; cats[c] = (cats[c]||0) + (e.amount||0); });
   const catKeys = Object.keys(cats);
   const ctx = document.getElementById('catChart').getContext('2d');
   if (catChartInstance) catChartInstance.destroy();
@@ -412,13 +397,14 @@ function renderAll(expenses) {
           </div>
           <span style="font-family:'Libre Baskerville',serif;font-size:10px;color:var(--cream);letter-spacing:1px">${fmt(cats[k])}</span>
         </div>`).join('')
-    : '<div style="font-family:\'Playfair Display\',serif;font-size:12px;font-style:italic;color:var(--muted)">No expenses yet.</div>';
+    : '<div style="font-family:\'Playfair Display\',serif;font-size:12px;font-style:italic;color:var(--muted)">No actuals logged yet.</div>';
 
-  // Estimated vs Actual table
+  // Estimated vs Actual table — estimated rows from Notion, matched to actuals by name
   const btBody = document.getElementById('bt-body');
   let totalEst = 0, totalAct = 0;
-  btBody.innerHTML = BUDGET_LINES.map(line => {
-    const act = expenses
+  const sortedEst = [...estimated].sort((a,b) => a.name.localeCompare(b.name));
+  btBody.innerHTML = sortedEst.map(line => {
+    const act = actuals
       .filter(e => e.name && e.name.toLowerCase().includes(line.name.split(' ')[0].toLowerCase()))
       .reduce((s,e) => s + (e.amount||0), 0);
     totalEst += line.est;
@@ -439,13 +425,13 @@ function renderAll(expenses) {
     <div class="bt-delta ${totalAct===0?'delta-zero':totalEst-totalAct>=0?'delta-under':'delta-over'}">${totalAct===0?'—':(totalEst-totalAct>=0?'-':'+')+fmt(Math.abs(totalEst-totalAct))}</div>
   </div>`;
 
-  // Expense list
+  // Expense log — actuals only
   const el = document.getElementById('expense-list');
-  if (!expenses.length) {
-    el.innerHTML = '<div class="empty-state">No expenses yet. Log your first one above.</div>';
+  if (!actuals.length) {
+    el.innerHTML = '<div class="empty-state">No actuals yet. Log your first real expense above.</div>';
     return;
   }
-  el.innerHTML = expenses.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(e => {
+  el.innerHTML = actuals.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(e => {
     const d = e.date ? new Date(e.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—';
     const cardClass = e.card === 'Nolan' ? 'card-nolan' : e.card === 'Patrick' ? 'card-patrick' : e.card === 'Company' ? 'card-company' : '';
     return `<div class="expense-row">
@@ -470,20 +456,25 @@ async function loadExpenses() {
     if (!resp.ok) {
       document.getElementById('expense-list').innerHTML =
         '<div class="empty-state">Notion access error: ' + (data.message || 'Check that the integration has access to this database.') + '</div>';
-      renderAll([]);
+      renderAll([], []);
       return;
     }
-    const expenses = (data.results || []).filter(p => !p.archived).map(p => ({
+    const all = (data.results || []).filter(p => !p.archived).map(p => ({
       name:     p.properties?.Name?.title?.[0]?.plain_text || 'Unnamed',
       amount:   p.properties?.Amount?.number || 0,
       category: p.properties?.Category?.select?.name || 'Other',
       card:     p.properties?.Card?.select?.name || '',
       date:     p.properties?.Date?.date?.start || '',
-      notes:    p.properties?.Notes?.rich_text?.[0]?.plain_text || ''
+      notes:    p.properties?.Notes?.rich_text?.[0]?.plain_text || '',
+      type:     p.properties?.Type?.select?.name || 'Actual'
     }));
-    renderAll(expenses);
+    const estimated = all.filter(e => e.type === 'Estimated').map(e => ({
+      name: e.name, est: e.amount, note: e.notes
+    }));
+    const actuals = all.filter(e => e.type === 'Actual');
+    renderAll(estimated, actuals);
   } catch(err) {
-    renderAll([]);
+    renderAll([], []);
     document.getElementById('expense-list').innerHTML =
       '<div class="empty-state">Couldn\'t connect to Notion. Check the integration has access to this database.</div>';
   }
@@ -516,7 +507,8 @@ async function addExpense() {
         'Amount':   { number: amount },
         'Category': { select: { name: category } },
         'Card':     { select: { name: selectedCard } },
-        'Date':     { date: { start: date } }
+        'Date':     { date: { start: date } },
+        'Type':     { select: { name: 'Actual' } }
       }
     };
     if (notes) body.properties['Notes'] = { rich_text: [{ text: { content: notes } }] };
