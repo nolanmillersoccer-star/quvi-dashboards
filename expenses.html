@@ -412,30 +412,23 @@ function renderAll(estimated, actuals) {
         </div>`).join('')
     : '<div style="font-family:\'Playfair Display\',serif;font-size:12px;font-style:italic;color:var(--muted)">No actuals logged yet.</div>';
 
-  // Estimated vs Actual table — estimated rows from Notion, matched to actuals by name
+  // Estimated vs Actual table
   const btBody = document.getElementById('bt-body');
-  let totalEst = 0, totalAct = 0;
+  let totalEst = 0;
   const sortedEst = [...estimated].sort((a,b) => a.name.localeCompare(b.name));
   btBody.innerHTML = sortedEst.map(line => {
-    const act = actuals
-      .filter(e => e.name && e.name.toLowerCase().includes(line.name.split(' ')[0].toLowerCase()))
-      .reduce((s,e) => s + (e.amount||0), 0);
     totalEst += line.est;
-    totalAct += act;
-    const delta = line.est - act;
-    const deltaClass = act === 0 ? 'delta-zero' : delta >= 0 ? 'delta-under' : 'delta-over';
-    const deltaStr = act === 0 ? '—' : (delta >= 0 ? '-' : '+') + fmt(Math.abs(delta));
     return `<div class="bt-row">
       <div><div class="bt-name">${line.name}</div><div class="bt-note">${line.note}</div></div>
       <div class="bt-est">${line.est === 0 ? '$0' : fmt(line.est)}</div>
-      <div class="bt-actual ${act === 0 ? 'zero' : ''}">${act === 0 ? '—' : fmt(act)}</div>
-      <div class="bt-delta ${deltaClass}">${deltaStr}</div>
+      <div class="bt-actual zero">—</div>
+      <div class="bt-delta delta-zero">—</div>
     </div>`;
   }).join('') + `<div class="bt-row total-row">
     <div><div class="bt-name" style="font-weight:700">Total · 2026 Bootstrap</div></div>
     <div class="bt-est" style="color:var(--cream)">${fmt(totalEst)}</div>
-    <div class="bt-actual" style="${totalAct===0?'color:var(--muted)':''}">${totalAct===0?'—':fmt(totalAct)}</div>
-    <div class="bt-delta ${totalAct===0?'delta-zero':totalEst-totalAct>=0?'delta-under':'delta-over'}">${totalAct===0?'—':(totalEst-totalAct>=0?'-':'+')+fmt(Math.abs(totalEst-totalAct))}</div>
+    <div class="bt-actual" style="color:var(--muted)">—</div>
+    <div class="bt-delta delta-zero">—</div>
   </div>`;
 
   // Expense log — actuals only
