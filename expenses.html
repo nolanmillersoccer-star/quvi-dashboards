@@ -165,7 +165,7 @@ body {
   <div class="grid-3">
     <div class="card">
       <div class="card-label">Total Budget</div>
-      <div class="card-value">$9,209</div>
+      <div class="card-value">$4,709</div>
       <div class="card-meta">2026 bootstrap burn</div>
     </div>
     <div class="card">
@@ -175,7 +175,7 @@ body {
     </div>
     <div class="card">
       <div class="card-label">Remaining</div>
-      <div class="card-value yellow" id="stat-remaining">$9,209</div>
+      <div class="card-value yellow" id="stat-remaining">$4,709</div>
       <div class="card-meta" id="stat-pct">100% of budget left</div>
     </div>
   </div>
@@ -183,7 +183,7 @@ body {
     <div class="progress-track"><div class="progress-fill" id="budget-bar" style="width:0%"></div></div>
     <div class="progress-row" style="margin-top:8px">
       <span id="bar-left">$0 spent</span>
-      <span id="bar-right">$9,209 remaining</span>
+      <span id="bar-right">$4,709 remaining</span>
     </div>
   </div>
 </div>
@@ -311,7 +311,7 @@ const HEADERS = {
   'Notion-Version': '2022-06-28',
   'Content-Type': 'application/json'
 };
-const BUDGET = 9209;
+const BUDGET = 4709;
 
 const BUDGET_LINES = [
   { name: 'Lovable subscription',        note: '$30/mo · front-end build',                est: 360  },
@@ -323,9 +323,7 @@ const BUDGET_LINES = [
   { name: 'USPTO trademark filing',      note: 'Quvi word mark, Class 42',                est: 350  },
   { name: 'Privacy policy + ToS',        note: 'U of M Law Clinic — pro bono',            est: 0    },
   { name: 'Crash reporting + analytics', note: 'Sentry + Mixpanel free tiers',            est: 0    },
-  { name: 'Beta paid test',              note: '$500 split across Meta + TikTok',          est: 500  },
-  { name: 'Pre-launch micro-influencer', note: '1–2 posts, early-access framing',         est: 300  },
-  { name: 'Year 1 paid media ramp',      note: "Q1–Q4 '27, scaling to $15K target",      est: 5000 },
+  { name: 'Beta paid test',              note: "Q3–Q4 '26 · $1,000 across Meta + TikTok", est: 1000 },
   { name: 'Misc',                        note: 'App Store assets, screen exports, fees',  est: 500  },
 ];
 
