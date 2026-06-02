@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quvi · This Week</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:   #0D0D0D;
+  --surface: #111111;
+  --elevated:#1A1A1A;
+  --red:     #8B1A1A;
+  --cream:   #F2E8D0;
+  --muted:   #5A5A5A;
+  --border:  #1E1E1E;
+  --done:    #2A2A2A;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--black);
+  color: var(--cream);
+  font-family: 'Playfair Display', Georgia, serif;
+  min-height: 100vh;
+  padding: 40px 28px 80px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* week header */
+.week-label {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--red);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.week-range {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--cream);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.week-meta {
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--muted);
+  margin-bottom: 36px;
+}
+
+/* divider */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 20px;
+}
+
+/* person section */
+.person-section { margin-bottom: 36px; }
+.person-label {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.person-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* task card */
+.task-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, opacity 0.3s;
+  user-select: none;
+}
+.task-card:hover { border-color: #2E2E2E; }
+.task-card.done {
+  background: var(--done);
+  opacity: 0.45;
+}
+
+/* checkbox */
+.check-ring {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.task-card.done .check-ring {
+  background: var(--red);
+  border-color: var(--red);
+}
+.check-ring svg { display: none; }
+.task-card.done .check-ring svg { display: block; }
+
+/* task body */
+.task-body { flex: 1; min-width: 0; }
+.task-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--cream);
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.task-card.done .task-name {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+.task-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pill {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+.pill-priority-high   { background: rgba(139,26,26,0.2); color: #C0443A; }
+.pill-priority-medium { background: rgba(184,149,42,0.15); color: #B8952A; }
+.pill-priority-low    { background: rgba(46,107,62,0.15); color: #4A9A5E; }
+.pill-status-progress { background: rgba(139,26,26,0.12); color: var(--red); }
+.pill-due {
+  font-family: 'Playfair Display', serif;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--muted);
+  padding: 0;
+  background: none;
+}
+.pill-overdue { color: #C0443A; }
+
+/* empty / loading */
+.empty {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--muted);
+  padding: 20px 0;
+}
+
+/* saving indicator */
+.saving-dot {
+  position: fixed;
+  bottom: 20px;
+  right: 24px;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.saving-dot.visible { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="week-label">This Week</div>
+<div class="week-range" id="week-range">—</div>
+<div class="week-meta" id="week-meta">Loading tasks...</div>
+
+<div class="divider"></div>
+
+<div id="task-root"></div>
+
+<div class="saving-dot" id="saving-dot">Saving...</div>
+
+<script>
+const NOTION_TOKEN = atob('bnRuXzY3MjI2ODE4MzA4OERQMmpaTHZxMk9mZkhMOG9KeVgya3Rwcmozc2lxZWVmWHk=');
+const TASKS_DB = '5b1270d0-a2f9-48c6-abef-172dda4387be';
+const HEADERS = {
+  'Authorization': 'Bearer ' + NOTION_TOKEN,
+  'Notion-Version': '2022-06-28',
+  'Content-Type': 'application/json'
+};
+
+// ── WEEK BOUNDS ──
+function getWeekBounds() {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun
+  const mon = new Date(now); mon.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  mon.setHours(0,0,0,0); sun.setHours(23,59,59,999);
+  return { start: mon, end: sun };
+}
+
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+}
+
+function fmtShort(str) {
+  if (!str) return null;
+  const d = new Date(str + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function isOverdue(str) {
+  if (!str) return false;
+  return new Date(str + 'T23:59:59') < new Date();
+}
+
+// ── WEEK HEADER ──
+const { start, end } = getWeekBounds();
+document.getElementById('week-range').textContent =
+  fmtDate(start) + ' – ' + fmtDate(end);
+
+// ── RENDER ──
+function renderTasks(tasks) {
+  const open = tasks.filter(t => !t.checked);
+  const done = tasks.filter(t => t.checked);
+  document.getElementById('week-meta').textContent =
+    open.length + ' open · ' + done.length + ' done this week';
+
+  // Group by assigned person
+  const groups = {};
+  tasks.forEach(t => {
+    const who = t.assignee || 'Unassigned';
+    if (!groups[who]) groups[who] = [];
+    groups[who].push(t);
+  });
+
+  // Sort: Nolan first, Patrick second, then others
+  const order = ['Nolan', 'Patrick'];
+  const keys = [...new Set([...order.filter(k => groups[k]), ...Object.keys(groups).filter(k => !order.includes(k))])];
+
+  const root = document.getElementById('task-root');
+  root.innerHTML = '';
+
+  if (!tasks.length) {
+    root.innerHTML = '<div class="empty">No tasks this week. Add some in Quvi Tasks.</div>';
+    return;
+  }
+
+  keys.forEach(who => {
+    const section = document.createElement('div');
+    section.className = 'person-section';
+
+    const label = document.createElement('div');
+    label.className = 'person-label';
+    label.textContent = who;
+    section.appendChild(label);
+
+    groups[who]
+      .sort((a,b) => {
+        // open before done, then by due date
+        if (a.checked !== b.checked) return a.checked ? 1 : -1;
+        return (a.due||'9') < (b.due||'9') ? -1 : 1;
+      })
+      .forEach(task => {
+        section.appendChild(buildCard(task));
+      });
+
+    root.appendChild(section);
+  });
+}
+
+function buildCard(task) {
+  const card = document.createElement('div');
+  card.className = 'task-card' + (task.checked ? ' done' : '');
+  card.dataset.id = task.id;
+
+  const overdue = !task.checked && isOverdue(task.due);
+
+  card.innerHTML = `
+    <div class="check-ring">
+      <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+        <path d="M1 4L3.5 6.5L9 1" stroke="#F2E8D0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="task-body">
+      <div class="task-name">${task.name}</div>
+      <div class="task-meta">
+        ${task.priority ? `<span class="pill pill-priority-${task.priority.toLowerCase()}">${task.priority}</span>` : ''}
+        ${task.status === 'In progress' ? `<span class="pill pill-status-progress">In Progress</span>` : ''}
+        ${task.due ? `<span class="pill pill-due ${overdue ? 'pill-overdue' : ''}">${overdue ? '⚠ ' : ''}${fmtShort(task.due)}</span>` : ''}
+      </div>
+    </div>
+  `;
+
+  card.addEventListener('click', () => toggleTask(task, card));
+  return card;
+}
+
+// ── TOGGLE ──
+let saving = false;
+async function toggleTask(task, card) {
+  if (saving) return;
+  saving = true;
+  const dot = document.getElementById('saving-dot');
+  dot.classList.add('visible');
+
+  task.checked = !task.checked;
+  card.classList.toggle('done', task.checked);
+
+  try {
+    await fetch('https://api.notion.com/v1/pages/' + task.id, {
+      method: 'PATCH',
+      headers: HEADERS,
+      body: JSON.stringify({
+        properties: {
+          'Checked': { checkbox: task.checked },
+          'Status':  { status: { name: task.checked ? 'Done' : 'Not started' } }
+        }
+      })
+    });
+  } catch(e) {
+    // revert on error
+    task.checked = !task.checked;
+    card.classList.toggle('done', task.checked);
+  }
+
+  setTimeout(() => { dot.classList.remove('visible'); saving = false; }, 600);
+}
+
+// ── LOAD ──
+async function load() {
+  try {
+    const resp = await fetch('https://api.notion.com/v1/databases/' + TASKS_DB + '/query', {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({ page_size: 100 })
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      document.getElementById('week-meta').textContent = 'Error loading tasks.';
+      return;
+    }
+
+    const { start, end } = getWeekBounds();
+
+    const tasks = (data.results || [])
+      .filter(p => !p.archived)
+      .map(p => {
+        const due = p.properties?.['Due date']?.date?.start || null;
+        const checked = p.properties?.Checked?.checkbox || false;
+        const status = p.properties?.Status?.status?.name || '';
+        // Get assignee name from person property
+        const people = p.properties?.['Assigned to']?.people || [];
+        const assignee = people.length ? (people[0].name || 'Unassigned') : 'Unassigned';
+        return {
+          id:       p.id,
+          name:     p.properties?.Name?.title?.[0]?.plain_text || 'Unnamed',
+          status,
+          priority: p.properties?.Priority?.select?.name || '',
+          due,
+          checked:  checked || status === 'Done',
+          assignee
+        };
+      })
+      // Show: tasks due this week, OR checked/done tasks due this week
+      .filter(t => {
+        if (!t.due) return t.status !== 'Done' && !t.checked; // no due date: show if open
+        const d = new Date(t.due + 'T12:00:00');
+        return d >= start && d <= end;
+      });
+
+    renderTasks(tasks);
+  } catch(err) {
+    document.getElementById('week-meta').textContent = 'Could not connect to Notion.';
+  }
+}
+
+load();
+</script>
+</body>
+</html>
