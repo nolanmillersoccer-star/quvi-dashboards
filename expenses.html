@@ -18,7 +18,6 @@
   --border: #222222;
   --yellow: #B8952A;
   --green: #2E6B3E;
-  --green-dim: rgba(46,107,62,0.15);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -64,12 +63,7 @@ body {
 .progress-row span { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
 
 /* ── WHO PAID CARDS ── */
-.person-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 16px 18px;
-  text-align: center;
-}
+.person-card { background:var(--surface); border:1px solid var(--border); padding:16px 18px; text-align:center; }
 .person-name { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2.5px; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
 .person-amount { font-family:'Playfair Display',serif; font-weight:900; font-size:26px; color:var(--cream); line-height:1; margin-bottom:4px; }
 .person-count { font-family:'Playfair Display',serif; font-size:11px; font-style:italic; color:var(--muted); }
@@ -80,19 +74,9 @@ body {
 
 /* ── BUDGET TABLE ── */
 .budget-table { background:var(--surface); border:1px solid var(--border); }
-.bt-header {
-  display:grid; grid-template-columns:1fr auto auto auto;
-  gap:16px; padding:10px 18px;
-  border-bottom:1px solid var(--border);
-  background:var(--elevated);
-}
+.bt-header { display:grid; grid-template-columns:1fr auto auto auto; gap:16px; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--elevated); }
 .bt-header span { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2px; color:var(--red); text-transform:uppercase; }
-.bt-row {
-  display:grid; grid-template-columns:1fr auto auto auto;
-  gap:16px; padding:11px 18px;
-  border-bottom:1px solid var(--border);
-  align-items:center;
-}
+.bt-row { display:grid; grid-template-columns:1fr auto auto auto; gap:16px; padding:11px 18px; border-bottom:1px solid var(--border); align-items:center; }
 .bt-row:last-child { border-bottom:none; }
 .bt-row.total-row { background:var(--elevated); border-top:1px solid var(--red); }
 .bt-name { font-family:'Playfair Display',serif; font-size:12px; color:var(--cream); }
@@ -144,22 +128,12 @@ body {
 
 /* ── EXPENSE LIST ── */
 .expense-table { background:var(--surface); border:1px solid var(--border); }
-.expense-header {
-  display:grid; grid-template-columns:1fr 80px 80px 70px 70px;
-  gap:12px; padding:10px 18px; border-bottom:1px solid var(--border);
-  background:var(--elevated);
-}
+.expense-header { display:grid; grid-template-columns:1fr 80px 80px 70px 70px; gap:12px; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--elevated); }
 .expense-header span { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2px; color:var(--red); text-transform:uppercase; }
-.expense-row {
-  display:grid; grid-template-columns:1fr 80px 80px 70px 70px;
-  gap:12px; padding:12px 18px; border-bottom:1px solid var(--border); align-items:center;
-}
+.expense-row { display:grid; grid-template-columns:1fr 80px 80px 70px 70px; gap:12px; padding:12px 18px; border-bottom:1px solid var(--border); align-items:center; }
 .expense-row:last-child { border-bottom:none; }
 .expense-name { font-family:'Playfair Display',serif; font-size:13px; color:var(--cream); }
-.expense-tag {
-  font-family:'Libre Baskerville',serif; font-size:8px; letter-spacing:1.5px;
-  text-transform:uppercase; padding:2px 7px; border:1px solid var(--muted); color:var(--muted); white-space:nowrap;
-}
+.expense-tag { font-family:'Libre Baskerville',serif; font-size:8px; letter-spacing:1.5px; text-transform:uppercase; padding:2px 7px; border:1px solid var(--muted); color:var(--muted); white-space:nowrap; }
 .expense-tag.card-nolan   { border-color:#1A4A8B; color:#4A7ABB; }
 .expense-tag.card-patrick { border-color:var(--green); color:#4A9A5A; }
 .expense-tag.card-company { border-color:var(--red); color:#A82020; }
@@ -263,7 +237,6 @@ body {
       <span style="text-align:right">Actual</span>
       <span style="text-align:right">Delta</span>
     </div>
-    <!-- rows injected by JS -->
     <div id="bt-body"></div>
   </div>
 </div>
@@ -331,22 +304,29 @@ body {
 </div>
 
 <script>
+const NOTION_TOKEN = atob('bnRuXzY3MjI2ODE4MzA4OERQMmpaTHZxMk9mZkhMOG9KeVgya3Rwcmozc2lxZWVmWHk=');
+const EXPENSES_DB  = '56f63e2e-3233-4061-b33c-09f5f313ca17';
+const HEADERS = {
+  'Authorization': 'Bearer ' + NOTION_TOKEN,
+  'Notion-Version': '2022-06-28',
+  'Content-Type': 'application/json'
+};
 const BUDGET = 9209;
 
 const BUDGET_LINES = [
-  { name: 'Lovable subscription',       note: '$30/mo · front-end build',              est: 360  },
-  { name: 'AWS hosting',                note: 'Beta scale, starts Sep \'26',            est: 800  },
-  { name: 'TMDB API',                   note: 'Free under 1M req/day',                  est: 0    },
-  { name: 'Domain (watchquvi.com)',      note: '~$200/mo via Namecheap, starts May \'26',est: 1600 },
-  { name: 'Apple Developer account',    note: 'Required for App Store',                 est: 99   },
-  { name: 'LLC filing + legal',         note: 'U of M Law Clinic — pro bono',           est: 0    },
-  { name: 'USPTO trademark filing',     note: 'Quvi word mark, Class 42',               est: 350  },
-  { name: 'Privacy policy + ToS',       note: 'U of M Law Clinic — pro bono',           est: 0    },
-  { name: 'Crash reporting + analytics',note: 'Sentry + Mixpanel free tiers',           est: 0    },
-  { name: 'Beta paid test',             note: '$500 split across Meta + TikTok',         est: 500  },
-  { name: 'Pre-launch micro-influencer',note: '1–2 posts, early-access framing',        est: 300  },
-  { name: 'Year 1 paid media ramp',     note: 'Q1–Q4 \'27, scaling to $15K target',    est: 5000 },
-  { name: 'Misc',                       note: 'App Store assets, screen exports, fees', est: 500  },
+  { name: 'Lovable subscription',       note: '$30/mo · front-end build',               est: 360  },
+  { name: 'AWS hosting',                note: 'Beta scale, starts Sep \'26',             est: 800  },
+  { name: 'TMDB API',                   note: 'Free under 1M req/day',                   est: 0    },
+  { name: 'Domain (watchquvi.com)',      note: '~$200/mo via Namecheap, starts May \'26', est: 1600 },
+  { name: 'Apple Developer account',    note: 'Required for App Store',                  est: 99   },
+  { name: 'LLC filing + legal',         note: 'U of M Law Clinic — pro bono',            est: 0    },
+  { name: 'USPTO trademark filing',     note: 'Quvi word mark, Class 42',                est: 350  },
+  { name: 'Privacy policy + ToS',       note: 'U of M Law Clinic — pro bono',            est: 0    },
+  { name: 'Crash reporting + analytics',note: 'Sentry + Mixpanel free tiers',            est: 0    },
+  { name: 'Beta paid test',             note: '$500 split across Meta + TikTok',          est: 500  },
+  { name: 'Pre-launch micro-influencer',note: '1–2 posts, early-access framing',         est: 300  },
+  { name: 'Year 1 paid media ramp',     note: 'Q1–Q4 \'27, scaling to $15K target',     est: 5000 },
+  { name: 'Misc',                       note: 'App Store assets, screen exports, fees',  est: 500  },
 ];
 
 const CAT_COLORS = {
@@ -356,7 +336,6 @@ const CAT_COLORS = {
 
 let selectedCard = '';
 let catChartInstance = null;
-let allExpenses = [];
 
 // ── INIT ──
 document.getElementById('last-updated').textContent =
@@ -371,18 +350,17 @@ function selectCard(card) {
   });
 }
 
-// ── RENDER ──
+// ── FORMAT ──
 function fmt(n) {
   return '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
+// ── RENDER ──
 function renderAll(expenses) {
-  allExpenses = expenses;
   const total = expenses.reduce((s,e) => s + (e.amount||0), 0);
   const remaining = BUDGET - total;
   const pct = Math.min(100, (total / BUDGET) * 100);
 
-  // Overview
   document.getElementById('stat-spent').textContent = fmt(total);
   document.getElementById('stat-remaining').textContent = fmt(remaining);
   document.getElementById('stat-count').textContent = expenses.length + ' expense' + (expenses.length !== 1 ? 's' : '') + ' logged';
@@ -423,6 +401,7 @@ function renderAll(expenses) {
       }
     });
   }
+
   const bd = document.getElementById('cat-breakdown');
   bd.innerHTML = catKeys.length
     ? catKeys.sort((a,b)=>cats[b]-cats[a]).map(k=>`
@@ -439,7 +418,6 @@ function renderAll(expenses) {
   const btBody = document.getElementById('bt-body');
   let totalEst = 0, totalAct = 0;
   btBody.innerHTML = BUDGET_LINES.map(line => {
-    // Try to match actual expenses to this line by keyword
     const act = expenses
       .filter(e => e.name && e.name.toLowerCase().includes(line.name.split(' ')[0].toLowerCase()))
       .reduce((s,e) => s + (e.amount||0), 0);
@@ -480,28 +458,34 @@ function renderAll(expenses) {
   }).join('');
 }
 
-// ── FETCH FROM NOTION ──
+// ── FETCH FROM NOTION API ──
 async function loadExpenses() {
   try {
-    const r = await window.cowork.callMcpTool(
-      'mcp__583af839-e66f-4a73-9d43-82c029704119__notion-search',
-      { query: 'quvi expense', query_type:'internal', page_size:50, max_highlight_length:0 }
-    );
-    const pages = (r?.results||[])
-      .filter(p => p.type === 'page' && p.properties?.Amount !== undefined)
-      .map(p => ({
-        name:     p.title || 'Unnamed',
-        amount:   parseFloat(p.properties?.Amount) || 0,
-        category: p.properties?.Category || 'Other',
-        card:     p.properties?.Card || '',
-        date:     p.properties?.['date:Date:start'] || p.properties?.Date || '',
-        notes:    p.properties?.Notes || ''
-      }));
-    renderAll(pages);
+    const resp = await fetch('https://api.notion.com/v1/databases/' + EXPENSES_DB + '/query', {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({ page_size: 100 })
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      document.getElementById('expense-list').innerHTML =
+        '<div class="empty-state">Notion access error: ' + (data.message || 'Check that the integration has access to this database.') + '</div>';
+      renderAll([]);
+      return;
+    }
+    const expenses = (data.results || []).filter(p => !p.archived).map(p => ({
+      name:     p.properties?.Name?.title?.[0]?.plain_text || 'Unnamed',
+      amount:   p.properties?.Amount?.number || 0,
+      category: p.properties?.Category?.select?.name || 'Other',
+      card:     p.properties?.Card?.select?.name || '',
+      date:     p.properties?.Date?.date?.start || '',
+      notes:    p.properties?.Notes?.rich_text?.[0]?.plain_text || ''
+    }));
+    renderAll(expenses);
   } catch(err) {
     renderAll([]);
     document.getElementById('expense-list').innerHTML =
-      '<div class="empty-state">No expenses yet. Log your first one above.</div>';
+      '<div class="empty-state">Couldn\'t connect to Notion. Check the integration has access to this database.</div>';
   }
 }
 
@@ -525,22 +509,26 @@ async function addExpense() {
   status.textContent = 'Logging to Notion...';
 
   try {
-    await window.cowork.callMcpTool(
-      'mcp__583af839-e66f-4a73-9d43-82c029704119__notion-create-pages',
-      {
-        parent: { type:'data_source_id', data_source_id:'e89016ed-0011-4268-899d-7da825b3e648' },
-        pages: [{
-          properties: {
-            'Name':            name,
-            'Amount':          amount,
-            'Category':        category,
-            'Card':            selectedCard,
-            'date:Date:start': date,
-            'Notes':           notes || null
-          }
-        }]
+    const body = {
+      parent: { database_id: EXPENSES_DB },
+      properties: {
+        'Name':     { title: [{ text: { content: name } }] },
+        'Amount':   { number: amount },
+        'Category': { select: { name: category } },
+        'Card':     { select: { name: selectedCard } },
+        'Date':     { date: { start: date } }
       }
-    );
+    };
+    if (notes) body.properties['Notes'] = { rich_text: [{ text: { content: notes } }] };
+
+    const resp = await fetch('https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify(body)
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || 'API error');
+
     status.textContent = 'Logged. Refreshing...';
     document.getElementById('f-name').value = '';
     document.getElementById('f-amount').value = '';
@@ -551,7 +539,7 @@ async function addExpense() {
     ['nolan','patrick','company'].forEach(c => document.getElementById('btn-'+c).classList.remove('active'));
     setTimeout(() => { status.textContent = ''; loadExpenses(); }, 900);
   } catch(e) {
-    status.textContent = 'Failed to log. Try again.';
+    status.textContent = 'Failed: ' + e.message;
   }
   btn.disabled = false;
 }
