@@ -441,7 +441,7 @@ body {
   <div class="budget-card">
     <div class="budget-row">
       <span class="budget-label">Total budget</span>
-      <span class="budget-amount">$9,209</span>
+      <span class="budget-amount">$4,709</span>
     </div>
     <div class="budget-row">
       <span class="budget-label">Spent to date</span>
@@ -449,14 +449,14 @@ body {
     </div>
     <div class="budget-row">
       <span class="budget-label">Remaining</span>
-      <span class="budget-amount yellow" id="remaining-total">$9,209</span>
+      <span class="budget-amount yellow" id="remaining-total">$4,709</span>
     </div>
     <div class="progress-track" style="margin-top:14px">
       <div class="progress-fill" id="budget-bar" style="width:0%"></div>
     </div>
     <div class="progress-row">
       <span id="budget-label">$0 spent</span>
-      <span id="budget-pct">0% of $9,209</span>
+      <span id="budget-pct">0% of $4,709</span>
     </div>
     <a class="expense-link" href="https://nolanmillersoccer-star.github.io/quvi-dashboards/expenses.html" target="_blank">→ Open Expense Tracker</a>
   </div>
@@ -615,7 +615,7 @@ async function loadExpenses() {
     document.getElementById('remaining-total').textContent = '$' + remaining.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('budget-bar').style.width = pct + '%';
     document.getElementById('budget-label').textContent = '$' + total.toFixed(0) + ' spent';
-    document.getElementById('budget-pct').textContent = pct + '% of $9,209';
+    document.getElementById('budget-pct').textContent = pct + '% of $4,709';
   } catch(e) {
     // silent — show defaults
   }
