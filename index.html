@@ -36,13 +36,11 @@ body {
   padding: 28px 32px 22px;
   position: relative;
 }
-/* dots – placed OUTSIDE content flow so they never overlap text */
 .dot {
   position: absolute;
   width: 7px; height: 7px;
   background: var(--red);
   border-radius: 50%;
-  /* punch a black background so dash line doesn't show through */
   box-shadow: 0 0 0 3px var(--black);
   z-index: 2;
 }
@@ -308,7 +306,7 @@ body {
   text-transform: uppercase;
 }
 .budget-amount.spent { color: #A82020; }
-.budget-amount.remaining { color: #5A8A5A; }
+.budget-amount.yellow { color: #B8952A; }
 
 /* ── EXPENSE LINK ── */
 .expense-link {
@@ -443,7 +441,7 @@ body {
   <div class="budget-card">
     <div class="budget-row">
       <span class="budget-label">Total budget</span>
-      <span class="budget-amount">$9,000</span>
+      <span class="budget-amount">$9,209</span>
     </div>
     <div class="budget-row">
       <span class="budget-label">Spent to date</span>
@@ -451,20 +449,29 @@ body {
     </div>
     <div class="budget-row">
       <span class="budget-label">Remaining</span>
-      <span class="budget-amount remaining" id="remaining-total">$9,000</span>
+      <span class="budget-amount yellow" id="remaining-total">$9,209</span>
     </div>
     <div class="progress-track" style="margin-top:14px">
       <div class="progress-fill" id="budget-bar" style="width:0%"></div>
     </div>
     <div class="progress-row">
       <span id="budget-label">$0 spent</span>
-      <span id="budget-pct">0% of $9,000</span>
+      <span id="budget-pct">0% of $9,209</span>
     </div>
-    <button class="expense-link" onclick="window.open('https://claude.ai','_blank')" style="margin-top:16px">→ Open Expense Tracker</button>
+    <a class="expense-link" href="https://nolanmillersoccer-star.github.io/quvi-dashboards/expenses.html" target="_blank">→ Open Expense Tracker</a>
   </div>
 </div>
 
 <script>
+const NOTION_TOKEN = atob('bnRuXzY3MjI2ODE4MzA4OERQMmpaTHZxMk9mZkhMOG9KeVgya3Rwcmozc2lxZWVmWHk=');
+const TASKS_DB    = '5b1270d0-a2f9-48c6-abef-172dda4387be';
+const EXPENSES_DB = '56f63e2e-3233-4061-b33c-09f5f313ca17';
+const HEADERS = {
+  'Authorization': 'Bearer ' + NOTION_TOKEN,
+  'Notion-Version': '2022-06-28',
+  'Content-Type': 'application/json'
+};
+
 // ── DATES ──
 document.getElementById('last-updated').textContent =
   'Updated ' + new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
@@ -479,10 +486,9 @@ document.getElementById('d-beta').textContent = daysUntil('2026-09-20');
 document.getElementById('d-launch').textContent = daysUntil('2026-12-10');
 
 // ── GROWTH CHART ──
-// Projected: 0 before beta, S-curve Sep–Dec to 1000
 const labels = ['Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const projected = [0, 0, 0, 50, 350, 750, 1000];
-const actual    = [0, null, null, null, null, null, null]; // update as beta progresses
+const actual    = [0, null, null, null, null, null, null];
 
 const ctx = document.getElementById('growthChart').getContext('2d');
 new Chart(ctx, {
@@ -522,19 +528,11 @@ new Chart(ctx, {
     plugins: {
       legend: {
         display: true,
-        labels: {
-          color: '#6A6A6A',
-          font: { family: 'Libre Baskerville', size: 9 },
-          boxWidth: 20,
-          padding: 14
-        }
+        labels: { color: '#6A6A6A', font: { family: 'Libre Baskerville', size: 9 }, boxWidth: 20, padding: 14 }
       },
       tooltip: {
-        backgroundColor: '#111111',
-        borderColor: '#8B1A1A',
-        borderWidth: 1,
-        titleColor: '#F2E8D0',
-        bodyColor: '#6A6A6A',
+        backgroundColor: '#111111', borderColor: '#8B1A1A', borderWidth: 1,
+        titleColor: '#F2E8D0', bodyColor: '#6A6A6A',
         titleFont: { family: 'Libre Baskerville', size: 9 },
         bodyFont: { family: 'Playfair Display', size: 12 },
         callbacks: { label: c => (c.parsed.y ?? '—') + ' users' }
@@ -545,8 +543,7 @@ new Chart(ctx, {
       y: {
         grid: { color: '#1A1A1A' },
         ticks: {
-          color: '#6A6A6A',
-          font: { family: 'Libre Baskerville', size: 8 },
+          color: '#6A6A6A', font: { family: 'Libre Baskerville', size: 8 },
           callback: v => v >= 1000 ? (v/1000).toFixed(0)+'K' : v
         }
       }
@@ -554,68 +551,71 @@ new Chart(ctx, {
   }
 });
 
-// ── LOAD TASKS FROM NOTION ──
+// ── LOAD TASKS FROM NOTION API ──
 async function loadTasks() {
   const el = document.getElementById('task-list');
   try {
-    const r = await window.cowork.callMcpTool(
-      'mcp__583af839-e66f-4a73-9d43-82c029704119__notion-search',
-      { query: 'quvi', query_type: 'internal', page_size: 25, max_highlight_length: 80 }
-    );
-    const results = r?.results || [];
-    // Filter for pages that are likely tasks (not databases/big pages)
-    const tasks = results.filter(p =>
-      p.type === 'page' &&
-      !['QUVI Business OS','Quvi Tasks','Quvi Projects','Quvi Meeting Notes',
-        'Quvi Weekly Brief','Quvi Weekly Recap','Quvi Quarterly Goals',
-        'Past Quvi Documents','Quvi To Do List','Quvi Growth Dashboard'].includes(p.title)
-    ).slice(0, 12);
+    const resp = await fetch('https://api.notion.com/v1/databases/' + TASKS_DB + '/query', {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({ page_size: 20 })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || 'API error');
 
-    if (!tasks.length) {
-      el.innerHTML = '<div class="task-empty">No open tasks found. Add tasks in Notion to see them here.</div>';
+    const pages = (data.results || []).filter(p => !p.archived);
+    if (!pages.length) {
+      el.innerHTML = '<div class="task-empty">No open tasks. Add tasks in Notion to see them here.</div>';
       return;
     }
-    el.innerHTML = tasks.map(t => {
-      const priority = t.properties?.Priority || '';
-      const status = t.properties?.Status || 'Not started';
-      const due = t.properties?.['Due date'] || '';
+    el.innerHTML = pages.map(p => {
+      const title    = p.properties?.Name?.title?.[0]?.plain_text
+                    || p.properties?.Task?.title?.[0]?.plain_text
+                    || 'Unnamed task';
+      const status   = p.properties?.Status?.status?.name || '';
+      const priority = p.properties?.Priority?.select?.name || '';
+      const due      = p.properties?.['Due date']?.date?.start
+                    || p.properties?.['Due Date']?.date?.start
+                    || p.properties?.Date?.date?.start || '';
       const badgeClass = priority === 'High' ? 'badge-high' :
                          priority === 'Medium' ? 'badge-medium' :
-                         status === 'In progress' ? 'badge-progress' : 'badge-low';
-      const badgeText = status === 'In progress' ? 'In Progress' : (priority || 'Task');
-      const dueStr = due ? new Date(due).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+                         status === 'In progress' || status === 'In Progress' ? 'badge-progress' : 'badge-low';
+      const badgeText  = status === 'In progress' || status === 'In Progress' ? 'In Progress'
+                       : priority || (status || 'Task');
+      const dueStr = due ? new Date(due + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
       return `<div class="task-item">
         <span class="task-badge ${badgeClass}">${badgeText}</span>
-        <span class="task-name">${t.title}</span>
+        <span class="task-name">${title}</span>
         ${dueStr ? `<span class="task-due">${dueStr}</span>` : ''}
       </div>`;
     }).join('');
   } catch(e) {
-    el.innerHTML = '<div class="task-empty">Couldn\'t load tasks. Check Notion connection.</div>';
+    el.innerHTML = '<div class="task-empty">Couldn\'t load tasks — make sure the integration has access to your Tasks database.</div>';
   }
 }
 
-// ── LOAD EXPENSES FROM NOTION ──
+// ── LOAD EXPENSES FROM NOTION API ──
 async function loadExpenses() {
   try {
-    const r = await window.cowork.callMcpTool(
-      'mcp__583af839-e66f-4a73-9d43-82c029704119__notion-search',
-      { query: 'quvi expenses', query_type: 'internal', page_size: 50, max_highlight_length: 0 }
-    );
-    const expenses = (r?.results || []).filter(p =>
-      p.url?.includes('56f63e2e') || (p.type === 'page' && p.properties?.Amount !== undefined)
-    );
-    const total = expenses.reduce((s, e) => s + (parseFloat(e.properties?.Amount) || 0), 0);
-    const remaining = 9000 - total;
-    const pct = Math.min(100, (total / 9000) * 100).toFixed(1);
+    const resp = await fetch('https://api.notion.com/v1/databases/' + EXPENSES_DB + '/query', {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({ page_size: 100 })
+    });
+    const data = await resp.json();
+    if (!resp.ok) return;
+
+    const total = (data.results || []).reduce((s, p) => s + (p.properties?.Amount?.number || 0), 0);
+    const remaining = 9209 - total;
+    const pct = Math.min(100, (total / 9209) * 100).toFixed(1);
 
     document.getElementById('spent-total').textContent = '$' + total.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('remaining-total').textContent = '$' + remaining.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('budget-bar').style.width = pct + '%';
     document.getElementById('budget-label').textContent = '$' + total.toFixed(0) + ' spent';
-    document.getElementById('budget-pct').textContent = pct + '% of $9,000';
+    document.getElementById('budget-pct').textContent = pct + '% of $9,209';
   } catch(e) {
-    // silent — show $0 defaults
+    // silent — show defaults
   }
 }
 
