@@ -8,125 +8,73 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <style>
 :root {
-  --black: #0D0D0D;
-  --surface: #111111;
-  --elevated: #1A1A1A;
-  --red: #8B1A1A;
-  --red-dim: rgba(139,26,26,0.12);
-  --cream: #F2E8D0;
-  --muted: #6A6A6A;
-  --border: #222222;
-  --yellow: #B8952A;
-  --green: #2E6B3E;
+  --black: #0D0D0D; --surface: #111111; --elevated: #1A1A1A;
+  --red: #8B1A1A; --red-dim: rgba(139,26,26,0.12);
+  --cream: #F2E8D0; --muted: #6A6A6A; --border: #222222;
+  --yellow: #B8952A; --green: #2E6B3E;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--black);
-  color: var(--cream);
-  font-family: 'Playfair Display', Georgia, serif;
-  min-height: 100vh;
-  padding: 28px 24px 56px;
-}
-
-/* ── MARQUEE ── */
+body { background: var(--black); color: var(--cream); font-family: 'Playfair Display', Georgia, serif; min-height: 100vh; padding: 28px 24px 56px; }
 .header-wrap { margin-bottom: 32px; }
 .marquee { border: 1.5px dashed var(--red); padding: 28px 32px 22px; position: relative; }
 .dot { position:absolute; width:7px; height:7px; background:var(--red); border-radius:50%; box-shadow:0 0 0 3px var(--black); z-index:2; }
-.dot.tl{top:-4px;left:-4px} .dot.tr{top:-4px;right:-4px}
-.dot.bl{bottom:-4px;left:-4px} .dot.br{bottom:-4px;right:-4px}
+.dot.tl{top:-4px;left:-4px} .dot.tr{top:-4px;right:-4px} .dot.bl{bottom:-4px;left:-4px} .dot.br{bottom:-4px;right:-4px}
 .dot.mt{top:-4px;left:calc(50% - 3.5px)} .dot.mb{bottom:-4px;left:calc(50% - 3.5px)}
 .dot.ml{left:-4px;top:calc(50% - 3.5px)} .dot.mr{right:-4px;top:calc(50% - 3.5px)}
 .header-eyebrow { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:3.5px; color:var(--red); text-transform:uppercase; margin-bottom:10px; }
 .header-title { font-family:'Playfair Display',serif; font-weight:900; font-size:40px; color:var(--cream); letter-spacing:2px; line-height:1; margin-bottom:6px; }
 .header-sub { font-family:'Playfair Display',serif; font-size:13px; font-style:italic; color:var(--muted); }
 .header-date { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-top:14px; }
-
-/* ── SECTION ── */
 .section-label { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:3px; color:var(--red); text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
 .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
 .section-wrap { margin-bottom:28px; }
 .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
 .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-
-/* ── CARDS ── */
 .card { background:var(--surface); border:1px solid var(--border); padding:18px 20px; }
 .card-label { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
 .card-value { font-family:'Playfair Display',serif; font-weight:900; font-size:34px; color:var(--cream); line-height:1; margin-bottom:4px; }
 .card-value.red { color:#A82020; }
 .card-value.yellow { color:var(--yellow); }
 .card-meta { font-family:'Playfair Display',serif; font-size:11px; font-style:italic; color:var(--muted); }
-
-/* ── PROGRESS ── */
 .progress-track { height:2px; background:var(--elevated); }
 .progress-fill { height:2px; background:var(--red); transition:width 0.5s; }
 .progress-row { display:flex; justify-content:space-between; margin-top:5px; }
 .progress-row span { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
-
-/* ── WHO PAID CARDS ── */
 .person-card { background:var(--surface); border:1px solid var(--border); padding:16px 18px; text-align:center; }
 .person-name { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2.5px; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
 .person-amount { font-family:'Playfair Display',serif; font-weight:900; font-size:26px; color:var(--cream); line-height:1; margin-bottom:4px; }
 .person-count { font-family:'Playfair Display',serif; font-size:11px; font-style:italic; color:var(--muted); }
-
-/* ── CHART ── */
 .chart-card { background:var(--surface); border:1px solid var(--border); padding:20px; }
 .chart-wrap { position:relative; height:180px; margin-top:14px; }
 
-/* ── BUDGET TABLE ── */
+/* ── BUDGET TABLE — 2 columns only ── */
 .budget-table { background:var(--surface); border:1px solid var(--border); }
-.bt-header { display:grid; grid-template-columns:1fr auto auto auto; gap:16px; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--elevated); }
+.bt-header { display:grid; grid-template-columns:1fr 120px; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--elevated); }
 .bt-header span { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2px; color:var(--red); text-transform:uppercase; }
-.bt-row { display:grid; grid-template-columns:1fr auto auto auto; gap:16px; padding:11px 18px; border-bottom:1px solid var(--border); align-items:center; }
+.bt-row { display:grid; grid-template-columns:1fr 120px; padding:11px 18px; border-bottom:1px solid var(--border); align-items:center; }
 .bt-row:last-child { border-bottom:none; }
 .bt-row.total-row { background:var(--elevated); border-top:1px solid var(--red); }
 .bt-name { font-family:'Playfair Display',serif; font-size:12px; color:var(--cream); }
 .bt-note { font-family:'Playfair Display',serif; font-size:11px; font-style:italic; color:var(--muted); margin-top:2px; }
-.bt-est { font-family:'Libre Baskerville',serif; font-size:10px; color:var(--muted); letter-spacing:1px; text-align:right; white-space:nowrap; }
-.bt-actual { font-family:'Libre Baskerville',serif; font-size:10px; color:#A82020; letter-spacing:1px; text-align:right; white-space:nowrap; }
-.bt-actual.zero { color:var(--muted); }
-.bt-delta { font-family:'Libre Baskerville',serif; font-size:10px; letter-spacing:1px; text-align:right; white-space:nowrap; }
-.delta-under { color:var(--yellow); }
-.delta-over  { color:#A82020; }
-.delta-zero  { color:var(--muted); }
+.bt-est { font-family:'Libre Baskerville',serif; font-size:10px; color:var(--cream); letter-spacing:1px; text-align:right; white-space:nowrap; }
 
-/* ── LOG FORM ── */
 .form-card { background:var(--surface); border:1px solid var(--border); padding:24px; }
 .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
 .form-group { display:flex; flex-direction:column; gap:6px; }
 .form-group.full { grid-column:1/-1; }
 .form-label { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
-.form-input, .form-select {
-  background:var(--elevated); border:1px solid var(--border);
-  color:var(--cream); font-family:'Playfair Display',serif; font-size:13px;
-  padding:9px 12px; outline:none; width:100%; appearance:none;
-}
+.form-input, .form-select { background:var(--elevated); border:1px solid var(--border); color:var(--cream); font-family:'Playfair Display',serif; font-size:13px; padding:9px 12px; outline:none; width:100%; appearance:none; }
 .form-input:focus, .form-select:focus { border-color:var(--red); }
 .form-input::placeholder { color:var(--muted); }
 .form-select option { background:var(--elevated); }
-
-/* ── CARD SELECTOR ── */
 .card-selector { display:flex; gap:10px; margin-top:2px; }
-.card-btn {
-  flex:1; padding:9px 8px; border:1px solid var(--border);
-  background:var(--elevated); color:var(--muted);
-  font-family:'Libre Baskerville',serif; font-size:9px;
-  letter-spacing:2px; text-transform:uppercase; cursor:pointer;
-  transition:all 0.15s; text-align:center;
-}
+.card-btn { flex:1; padding:9px 8px; border:1px solid var(--border); background:var(--elevated); color:var(--muted); font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all 0.15s; text-align:center; }
 .card-btn:hover { border-color:var(--red); color:var(--cream); }
 .card-btn.active { background:var(--red-dim); border-color:var(--red); color:var(--cream); }
-
-/* ── SUBMIT ── */
-.btn-submit {
-  font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2.5px;
-  text-transform:uppercase; color:var(--cream); background:var(--red);
-  border:none; padding:11px 24px; cursor:pointer; transition:opacity 0.15s;
-}
+.btn-submit { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:var(--cream); background:var(--red); border:none; padding:11px 24px; cursor:pointer; transition:opacity 0.15s; }
 .btn-submit:hover { opacity:0.85; }
 .btn-submit:disabled { opacity:0.4; cursor:not-allowed; }
 .form-status { font-family:'Playfair Display',serif; font-size:12px; font-style:italic; color:var(--muted); margin-top:10px; min-height:18px; }
-
-/* ── EXPENSE LIST ── */
 .expense-table { background:var(--surface); border:1px solid var(--border); }
 .expense-header { display:grid; grid-template-columns:1fr 80px 80px 70px 70px; gap:12px; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--elevated); }
 .expense-header span { font-family:'Libre Baskerville',serif; font-size:9px; letter-spacing:2px; color:var(--red); text-transform:uppercase; }
@@ -134,7 +82,7 @@ body {
 .expense-row:last-child { border-bottom:none; }
 .expense-name { font-family:'Playfair Display',serif; font-size:13px; color:var(--cream); }
 .expense-tag { font-family:'Libre Baskerville',serif; font-size:8px; letter-spacing:1.5px; text-transform:uppercase; padding:2px 7px; border:1px solid var(--muted); color:var(--muted); white-space:nowrap; }
-.expense-tag.card-nolan   { border-color:#1A4A8B; color:#4A7ABB; }
+.expense-tag.card-nolan { border-color:#1A4A8B; color:#4A7ABB; }
 .expense-tag.card-patrick { border-color:var(--green); color:#4A9A5A; }
 .expense-tag.card-company { border-color:var(--red); color:#A82020; }
 .expense-date { font-family:'Libre Baskerville',serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; white-space:nowrap; }
@@ -145,13 +93,10 @@ body {
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header-wrap">
   <div class="marquee">
-    <div class="dot tl"></div><div class="dot tr"></div>
-    <div class="dot bl"></div><div class="dot br"></div>
-    <div class="dot mt"></div><div class="dot mb"></div>
-    <div class="dot ml"></div><div class="dot mr"></div>
+    <div class="dot tl"></div><div class="dot tr"></div><div class="dot bl"></div><div class="dot br"></div>
+    <div class="dot mt"></div><div class="dot mb"></div><div class="dot ml"></div><div class="dot mr"></div>
     <div class="header-eyebrow">Expense Tracker · 2026</div>
     <div class="header-title">QUVI</div>
     <div class="header-sub">Bootstrap budget — every dollar tracked.</div>
@@ -159,25 +104,12 @@ body {
   </div>
 </div>
 
-<!-- BUDGET OVERVIEW -->
 <div class="section-wrap">
   <div class="section-label">Budget Overview</div>
   <div class="grid-3">
-    <div class="card">
-      <div class="card-label">Total Budget</div>
-      <div class="card-value">$4,709</div>
-      <div class="card-meta">2026 bootstrap burn</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Spent to Date</div>
-      <div class="card-value red" id="stat-spent">$0</div>
-      <div class="card-meta" id="stat-count">0 expenses logged</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Remaining</div>
-      <div class="card-value yellow" id="stat-remaining">$4,709</div>
-      <div class="card-meta" id="stat-pct">100% of budget left</div>
-    </div>
+    <div class="card"><div class="card-label">Total Budget</div><div class="card-value">$4,709</div><div class="card-meta">2026 bootstrap burn</div></div>
+    <div class="card"><div class="card-label">Spent to Date</div><div class="card-value red" id="stat-spent">$0</div><div class="card-meta" id="stat-count">0 expenses logged</div></div>
+    <div class="card"><div class="card-label">Remaining</div><div class="card-value yellow" id="stat-remaining">$4,709</div><div class="card-meta" id="stat-pct">100% of budget left</div></div>
   </div>
   <div style="margin-top:12px;background:var(--surface);border:1px solid var(--border);padding:16px 20px;">
     <div class="progress-track"><div class="progress-fill" id="budget-bar" style="width:0%"></div></div>
@@ -188,116 +120,67 @@ body {
   </div>
 </div>
 
-<!-- WHO'S CARRYING WHAT -->
 <div class="section-wrap">
   <div class="section-label">Card Breakdown</div>
   <div class="grid-3">
-    <div class="person-card">
-      <div class="person-name">Nolan</div>
-      <div class="person-amount" id="card-nolan">$0</div>
-      <div class="person-count" id="card-nolan-count">0 expenses</div>
-    </div>
-    <div class="person-card">
-      <div class="person-name">Patrick</div>
-      <div class="person-amount" id="card-patrick">$0</div>
-      <div class="person-count" id="card-patrick-count">0 expenses</div>
-    </div>
-    <div class="person-card" style="border-color:var(--red)">
-      <div class="person-name">Company</div>
-      <div class="person-amount" id="card-company">$0</div>
-      <div class="person-count" id="card-company-count">0 expenses</div>
-    </div>
+    <div class="person-card"><div class="person-name">Nolan</div><div class="person-amount" id="card-nolan">$0</div><div class="person-count" id="card-nolan-count">0 expenses</div></div>
+    <div class="person-card"><div class="person-name">Patrick</div><div class="person-amount" id="card-patrick">$0</div><div class="person-count" id="card-patrick-count">0 expenses</div></div>
+    <div class="person-card" style="border-color:var(--red)"><div class="person-name">Company</div><div class="person-amount" id="card-company">$0</div><div class="person-count" id="card-company-count">0 expenses</div></div>
   </div>
 </div>
 
-<!-- CATEGORY CHART -->
 <div class="section-wrap">
   <div class="section-label">Spending by Category</div>
   <div class="grid-2">
-    <div class="chart-card">
-      <div class="card-label">Breakdown</div>
-      <div class="chart-wrap"><canvas id="catChart"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="card-label" style="margin-bottom:14px">By Category</div>
-      <div id="cat-breakdown">
-        <div style="font-family:'Playfair Display',serif;font-size:12px;font-style:italic;color:var(--muted)">No expenses yet.</div>
-      </div>
-    </div>
+    <div class="chart-card"><div class="card-label">Breakdown</div><div class="chart-wrap"><canvas id="catChart"></canvas></div></div>
+    <div class="chart-card"><div class="card-label" style="margin-bottom:14px">By Category</div><div id="cat-breakdown"><div style="font-family:'Playfair Display',serif;font-size:12px;font-style:italic;color:var(--muted)">No expenses yet.</div></div></div>
   </div>
 </div>
 
-<!-- ESTIMATED vs ACTUAL BUDGET -->
 <div class="section-wrap">
-  <div class="section-label">Estimated vs Actual · 2026</div>
+  <div class="section-label">2026 Budget Estimates</div>
   <div class="budget-table">
     <div class="bt-header">
       <span>Line Item</span>
       <span style="text-align:right">Estimated</span>
-      <span style="text-align:right">Actual</span>
-      <span style="text-align:right">Delta</span>
     </div>
     <div id="bt-body"></div>
   </div>
 </div>
 
-<!-- LOG EXPENSE -->
 <div class="section-wrap">
   <div class="section-label">Log Expense</div>
   <div class="form-card">
     <div class="form-grid">
-      <div class="form-group full">
-        <label class="form-label">Description</label>
-        <input class="form-input" id="f-name" type="text" placeholder="What was it for?">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Amount ($)</label>
-        <input class="form-input" id="f-amount" type="number" min="0" step="0.01" placeholder="0.00">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Category</label>
+      <div class="form-group full"><label class="form-label">Description</label><input class="form-input" id="f-name" type="text" placeholder="What was it for?"></div>
+      <div class="form-group"><label class="form-label">Amount ($)</label><input class="form-input" id="f-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="form-group"><label class="form-label">Category</label>
         <select class="form-select" id="f-category">
           <option value="">Select...</option>
-          <option>Legal</option>
-          <option>Tech</option>
-          <option>Design</option>
-          <option>Marketing</option>
-          <option>Operations</option>
-          <option>Other</option>
+          <option>Legal</option><option>Tech</option><option>Design</option>
+          <option>Marketing</option><option>Operations</option><option>Other</option>
         </select>
       </div>
-      <div class="form-group">
-        <label class="form-label">Date</label>
-        <input class="form-input" id="f-date" type="date">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Card</label>
+      <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="f-date" type="date"></div>
+      <div class="form-group"><label class="form-label">Card</label>
         <div class="card-selector">
-          <button class="card-btn" id="btn-nolan"    onclick="selectCard('Nolan')">Nolan</button>
-          <button class="card-btn" id="btn-patrick"  onclick="selectCard('Patrick')">Patrick</button>
-          <button class="card-btn" id="btn-company"  onclick="selectCard('Company')">Company</button>
+          <button class="card-btn" id="btn-nolan" onclick="selectCard('Nolan')">Nolan</button>
+          <button class="card-btn" id="btn-patrick" onclick="selectCard('Patrick')">Patrick</button>
+          <button class="card-btn" id="btn-company" onclick="selectCard('Company')">Company</button>
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Notes (optional)</label>
-        <input class="form-input" id="f-notes" type="text" placeholder="Any context">
-      </div>
+      <div class="form-group"><label class="form-label">Notes (optional)</label><input class="form-input" id="f-notes" type="text" placeholder="Any context"></div>
     </div>
     <button class="btn-submit" id="btn-submit" onclick="addExpense()">Log Expense →</button>
     <div class="form-status" id="form-status"></div>
   </div>
 </div>
 
-<!-- ALL EXPENSES -->
 <div class="section-wrap">
   <div class="section-label">All Expenses</div>
   <div class="expense-table">
     <div class="expense-header">
-      <span>Description</span>
-      <span>Category</span>
-      <span>Card</span>
-      <span>Date</span>
-      <span style="text-align:right">Amount</span>
+      <span>Description</span><span>Category</span><span>Card</span><span>Date</span><span style="text-align:right">Amount</span>
     </div>
     <div id="expense-list"><div class="loading-state">Loading from Notion...</div></div>
   </div>
@@ -306,236 +189,139 @@ body {
 <script>
 const NOTION_TOKEN = atob('bnRuXzY3MjI2ODE4MzA4OERQMmpaTHZxMk9mZkhMOG9KeVgya3Rwcmozc2lxZWVmWHk=');
 const EXPENSES_DB  = '56f63e2e-3233-4061-b33c-09f5f313ca17';
-const HEADERS = {
-  'Authorization': 'Bearer ' + NOTION_TOKEN,
-  'Notion-Version': '2022-06-28',
-  'Content-Type': 'application/json'
-};
+const HEADERS = { 'Authorization': 'Bearer ' + NOTION_TOKEN, 'Notion-Version': '2022-06-28', 'Content-Type': 'application/json' };
 const BUDGET = 4709;
 
 const BUDGET_LINES = [
-  { name: 'Lovable subscription',        note: '$30/mo · front-end build',                est: 360  },
-  { name: 'AWS hosting',                 note: "Beta scale, starts Sep '26",              est: 800  },
-  { name: 'TMDB API',                    note: 'Free under 1M req/day',                   est: 0    },
-  { name: 'Domain (watchquvi.com)',       note: "~$200/mo via Namecheap, starts May '26", est: 1600 },
-  { name: 'Apple Developer account',     note: 'Required for App Store',                  est: 99   },
-  { name: 'LLC filing + legal',          note: 'U of M Law Clinic — pro bono',            est: 0    },
-  { name: 'USPTO trademark filing',      note: 'Quvi word mark, Class 42',                est: 350  },
-  { name: 'Privacy policy + ToS',        note: 'U of M Law Clinic — pro bono',            est: 0    },
-  { name: 'Crash reporting + analytics', note: 'Sentry + Mixpanel free tiers',            est: 0    },
-  { name: 'Beta paid test',              note: "Q3–Q4 '26 · $1,000 across Meta + TikTok", est: 1000 },
-  { name: 'Misc',                        note: 'App Store assets, screen exports, fees',  est: 500  },
+  { name: 'Apple Developer account',     note: 'Required for App Store',                   est: 99   },
+  { name: 'AWS hosting',                 note: "Beta scale, starts Sep '26",               est: 800  },
+  { name: 'Beta paid test',              note: "Q3–Q4 '26 · $1,000 across Meta + TikTok",  est: 1000 },
+  { name: 'Crash reporting + analytics', note: 'Sentry + Mixpanel free tiers',             est: 0    },
+  { name: 'Domain (watchquvi.com)',       note: "~$200/mo via Namecheap, starts May '26",  est: 1600 },
+  { name: 'LLC filing + legal',          note: 'U of M Law Clinic — pro bono',             est: 0    },
+  { name: 'Lovable subscription',        note: '$30/mo · front-end build',                 est: 360  },
+  { name: 'Misc',                        note: 'App Store assets, screen exports, fees',   est: 500  },
+  { name: 'Privacy policy + ToS',        note: 'U of M Law Clinic — pro bono',             est: 0    },
+  { name: 'TMDB API',                    note: 'Free under 1M req/day',                    est: 0    },
+  { name: 'USPTO trademark filing',      note: 'Quvi word mark, Class 42',                 est: 350  },
 ];
 
-const CAT_COLORS = {
-  Legal:'#8B1A1A', Tech:'#1A4A8B', Design:'#5A1A8B',
-  Marketing:'#8B4A1A', Operations:'#4A4A4A', Other:'#3A3A3A'
-};
-
+const CAT_COLORS = { Legal:'#8B1A1A', Tech:'#1A4A8B', Design:'#5A1A8B', Marketing:'#8B4A1A', Operations:'#4A4A4A', Other:'#3A3A3A' };
 let selectedCard = '';
 let catChartInstance = null;
 
-// ── INIT ──
-document.getElementById('last-updated').textContent =
-  'Updated ' + new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
 document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
 
-// ── CARD SELECTOR ──
 function selectCard(card) {
   selectedCard = card;
-  ['Nolan','Patrick','Company'].forEach(c => {
-    document.getElementById('btn-' + c.toLowerCase()).classList.toggle('active', c === card);
-  });
+  ['Nolan','Patrick','Company'].forEach(c => document.getElementById('btn-'+c.toLowerCase()).classList.toggle('active', c===card));
 }
 
-// ── FORMAT ──
-function fmt(n) {
-  return '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-}
+function fmt(n) { return '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
-// ── RENDER ──
-function renderAll(estimated, actuals) {
-  const total = actuals.reduce((s,e) => s + (e.amount||0), 0);
+function renderAll(actuals) {
+  const total = actuals.reduce((s,e) => s+(e.amount||0), 0);
   const remaining = BUDGET - total;
-  const pct = Math.min(100, (total / BUDGET) * 100);
+  const pct = Math.min(100, (total/BUDGET)*100);
 
   document.getElementById('stat-spent').textContent = fmt(total);
   document.getElementById('stat-remaining').textContent = fmt(remaining);
-  document.getElementById('stat-count').textContent = actuals.length + ' actual expense' + (actuals.length !== 1 ? 's' : '') + ' logged';
-  document.getElementById('stat-pct').textContent = (100 - pct).toFixed(1) + '% of budget left';
+  document.getElementById('stat-count').textContent = actuals.length + ' actual expense' + (actuals.length!==1?'s':'') + ' logged';
+  document.getElementById('stat-pct').textContent = (100-pct).toFixed(1) + '% of budget left';
   document.getElementById('budget-bar').style.width = pct + '%';
   document.getElementById('bar-left').textContent = fmt(total) + ' spent';
   document.getElementById('bar-right').textContent = fmt(remaining) + ' remaining';
 
-  // Card breakdown (actuals only)
   ['Nolan','Patrick','Company'].forEach(person => {
-    const pexp = actuals.filter(e => e.card === person);
-    const ptotal = pexp.reduce((s,e) => s + (e.amount||0), 0);
-    document.getElementById('card-' + person.toLowerCase()).textContent = fmt(ptotal);
-    document.getElementById('card-' + person.toLowerCase() + '-count').textContent = pexp.length + ' expense' + (pexp.length !== 1 ? 's' : '');
+    const pexp = actuals.filter(e=>e.card===person);
+    document.getElementById('card-'+person.toLowerCase()).textContent = fmt(pexp.reduce((s,e)=>s+(e.amount||0),0));
+    document.getElementById('card-'+person.toLowerCase()+'-count').textContent = pexp.length+' expense'+(pexp.length!==1?'s':'');
   });
 
-  // Category chart (actuals only)
   const cats = {};
-  actuals.forEach(e => { const c = e.category||'Other'; cats[c] = (cats[c]||0) + (e.amount||0); });
+  actuals.forEach(e => { const c=e.category||'Other'; cats[c]=(cats[c]||0)+(e.amount||0); });
   const catKeys = Object.keys(cats);
   const ctx = document.getElementById('catChart').getContext('2d');
   if (catChartInstance) catChartInstance.destroy();
   if (catKeys.length) {
     catChartInstance = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: catKeys,
-        datasets: [{ data: catKeys.map(k=>cats[k]), backgroundColor: catKeys.map(k=>CAT_COLORS[k]||'#3A3A3A'), borderColor:'#0D0D0D', borderWidth:2 }]
-      },
-      options: {
-        responsive:true, maintainAspectRatio:false, cutout:'68%',
-        plugins: {
-          legend:{display:false},
-          tooltip:{ backgroundColor:'#111111',borderColor:'#8B1A1A',borderWidth:1,titleColor:'#F2E8D0',bodyColor:'#6A6A6A',
-            titleFont:{family:'Libre Baskerville',size:9},bodyFont:{family:'Playfair Display',size:12},
-            callbacks:{label:c=>'$'+c.parsed.toFixed(2)} }
-        }
-      }
+      type:'doughnut',
+      data:{ labels:catKeys, datasets:[{data:catKeys.map(k=>cats[k]),backgroundColor:catKeys.map(k=>CAT_COLORS[k]||'#3A3A3A'),borderColor:'#0D0D0D',borderWidth:2}] },
+      options:{ responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#111111',borderColor:'#8B1A1A',borderWidth:1,titleColor:'#F2E8D0',bodyColor:'#6A6A6A',callbacks:{label:c=>'$'+c.parsed.toFixed(2)}}}}
     });
   }
-
-  const bd = document.getElementById('cat-breakdown');
-  bd.innerHTML = catKeys.length
-    ? catKeys.sort((a,b)=>cats[b]-cats[a]).map(k=>`
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div style="width:8px;height:8px;border-radius:50%;background:${CAT_COLORS[k]||'#3A3A3A'};flex-shrink:0"></div>
-            <span style="font-family:'Libre Baskerville',serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">${k}</span>
-          </div>
-          <span style="font-family:'Libre Baskerville',serif;font-size:10px;color:var(--cream);letter-spacing:1px">${fmt(cats[k])}</span>
-        </div>`).join('')
+  document.getElementById('cat-breakdown').innerHTML = catKeys.length
+    ? catKeys.sort((a,b)=>cats[b]-cats[a]).map(k=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:${CAT_COLORS[k]||'#3A3A3A'};flex-shrink:0"></div><span style="font-family:'Libre Baskerville',serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">${k}</span></div><span style="font-family:'Libre Baskerville',serif;font-size:10px;color:var(--cream);letter-spacing:1px">${fmt(cats[k])}</span></div>`).join('')
     : '<div style="font-family:\'Playfair Display\',serif;font-size:12px;font-style:italic;color:var(--muted)">No actuals logged yet.</div>';
 
-  // Estimated vs Actual table
+  // Budget estimates table — estimated column only
   const btBody = document.getElementById('bt-body');
   let totalEst = 0;
-  const sortedEst = [...estimated].sort((a,b) => a.name.localeCompare(b.name));
-  btBody.innerHTML = sortedEst.map(line => {
+  btBody.innerHTML = BUDGET_LINES.map(line => {
     totalEst += line.est;
     return `<div class="bt-row">
       <div><div class="bt-name">${line.name}</div><div class="bt-note">${line.note}</div></div>
       <div class="bt-est">${line.est === 0 ? '$0' : fmt(line.est)}</div>
-      <div class="bt-actual zero">—</div>
-      <div class="bt-delta delta-zero">—</div>
     </div>`;
   }).join('') + `<div class="bt-row total-row">
     <div><div class="bt-name" style="font-weight:700">Total · 2026 Bootstrap</div></div>
-    <div class="bt-est" style="color:var(--cream)">${fmt(totalEst)}</div>
-    <div class="bt-actual" style="color:var(--muted)">—</div>
-    <div class="bt-delta delta-zero">—</div>
+    <div class="bt-est">${fmt(totalEst)}</div>
   </div>`;
 
-  // Expense log — actuals only
   const el = document.getElementById('expense-list');
-  if (!actuals.length) {
-    el.innerHTML = '<div class="empty-state">No actuals yet. Log your first real expense above.</div>';
-    return;
-  }
+  if (!actuals.length) { el.innerHTML = '<div class="empty-state">No actuals yet. Log your first real expense above.</div>'; return; }
   el.innerHTML = actuals.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(e => {
     const d = e.date ? new Date(e.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—';
-    const cardClass = e.card === 'Nolan' ? 'card-nolan' : e.card === 'Patrick' ? 'card-patrick' : e.card === 'Company' ? 'card-company' : '';
-    return `<div class="expense-row">
-      <span class="expense-name">${e.name}</span>
-      <span class="expense-tag">${e.category||'—'}</span>
-      <span class="expense-tag ${cardClass}">${e.card||'—'}</span>
-      <span class="expense-date">${d}</span>
-      <span class="expense-amount">${fmt(e.amount||0)}</span>
-    </div>`;
+    const cc = e.card==='Nolan'?'card-nolan':e.card==='Patrick'?'card-patrick':e.card==='Company'?'card-company':'';
+    return `<div class="expense-row"><span class="expense-name">${e.name}</span><span class="expense-tag">${e.category||'—'}</span><span class="expense-tag ${cc}">${e.card||'—'}</span><span class="expense-date">${d}</span><span class="expense-amount">${fmt(e.amount||0)}</span></div>`;
   }).join('');
 }
 
-// ── FETCH FROM NOTION API ──
 async function loadExpenses() {
   try {
-    const resp = await fetch('https://api.notion.com/v1/databases/' + EXPENSES_DB + '/query', {
-      method: 'POST',
-      headers: HEADERS,
-      body: JSON.stringify({ page_size: 100 })
-    });
+    const resp = await fetch('https://api.notion.com/v1/databases/'+EXPENSES_DB+'/query', { method:'POST', headers:HEADERS, body:JSON.stringify({page_size:100}) });
     const data = await resp.json();
-    if (!resp.ok) {
-      document.getElementById('expense-list').innerHTML =
-        '<div class="empty-state">Notion access error: ' + (data.message || 'Check that the integration has access to this database.') + '</div>';
-      renderAll(BUDGET_LINES, []);
-      return;
-    }
-    const actuals = (data.results || []).filter(p => !p.archived).map(p => ({
-      name:     p.properties?.Name?.title?.[0]?.plain_text || 'Unnamed',
-      amount:   p.properties?.Amount?.number || 0,
-      category: p.properties?.Category?.select?.name || 'Other',
-      card:     p.properties?.Card?.select?.name || '',
-      date:     p.properties?.Date?.date?.start || '',
-      notes:    p.properties?.Notes?.rich_text?.[0]?.plain_text || '',
-      type:     p.properties?.Type?.select?.name || 'Actual'
-    })).filter(e => e.type === 'Actual');
-    renderAll(BUDGET_LINES, actuals);
+    if (!resp.ok) { document.getElementById('expense-list').innerHTML='<div class="empty-state">Notion access error — connect the integration to this database.</div>'; renderAll([]); return; }
+    const actuals = (data.results||[]).filter(p=>!p.archived).map(p=>({
+      name: p.properties?.Name?.title?.[0]?.plain_text||'Unnamed',
+      amount: p.properties?.Amount?.number||0,
+      category: p.properties?.Category?.select?.name||'Other',
+      card: p.properties?.Card?.select?.name||'',
+      date: p.properties?.Date?.date?.start||'',
+      type: p.properties?.Type?.select?.name||'Actual'
+    })).filter(e=>e.type==='Actual');
+    renderAll(actuals);
   } catch(err) {
-    renderAll(BUDGET_LINES, []);
-    document.getElementById('expense-list').innerHTML =
-      '<div class="empty-state">Couldn\'t connect to Notion. Check the integration has access to this database.</div>';
+    renderAll([]);
+    document.getElementById('expense-list').innerHTML='<div class="empty-state">Couldn\'t connect to Notion.</div>';
   }
 }
 
-// ── ADD EXPENSE ──
 async function addExpense() {
-  const name     = document.getElementById('f-name').value.trim();
-  const amount   = parseFloat(document.getElementById('f-amount').value);
-  const category = document.getElementById('f-category').value;
-  const date     = document.getElementById('f-date').value;
-  const notes    = document.getElementById('f-notes').value.trim();
-  const status   = document.getElementById('form-status');
-  const btn      = document.getElementById('btn-submit');
-
-  if (!name)                        { status.textContent = 'Add a description.'; return; }
-  if (!amount || isNaN(amount) || amount <= 0) { status.textContent = 'Enter a valid amount.'; return; }
-  if (!category)                    { status.textContent = 'Select a category.'; return; }
-  if (!selectedCard)                { status.textContent = 'Select whose card this went on.'; return; }
-  if (!date)                        { status.textContent = 'Pick a date.'; return; }
-
-  btn.disabled = true;
-  status.textContent = 'Logging to Notion...';
-
+  const name=document.getElementById('f-name').value.trim(), amount=parseFloat(document.getElementById('f-amount').value);
+  const category=document.getElementById('f-category').value, date=document.getElementById('f-date').value;
+  const notes=document.getElementById('f-notes').value.trim(), status=document.getElementById('form-status'), btn=document.getElementById('btn-submit');
+  if (!name){status.textContent='Add a description.';return;}
+  if (!amount||isNaN(amount)||amount<=0){status.textContent='Enter a valid amount.';return;}
+  if (!category){status.textContent='Select a category.';return;}
+  if (!selectedCard){status.textContent='Select whose card this went on.';return;}
+  if (!date){status.textContent='Pick a date.';return;}
+  btn.disabled=true; status.textContent='Logging to Notion...';
   try {
-    const body = {
-      parent: { database_id: EXPENSES_DB },
-      properties: {
-        'Name':     { title: [{ text: { content: name } }] },
-        'Amount':   { number: amount },
-        'Category': { select: { name: category } },
-        'Card':     { select: { name: selectedCard } },
-        'Date':     { date: { start: date } },
-        'Type':     { select: { name: 'Actual' } }
-      }
-    };
-    if (notes) body.properties['Notes'] = { rich_text: [{ text: { content: notes } }] };
-
-    const resp = await fetch('https://api.notion.com/v1/pages', {
-      method: 'POST',
-      headers: HEADERS,
-      body: JSON.stringify(body)
-    });
-    const data = await resp.json();
-    if (!resp.ok) throw new Error(data.message || 'API error');
-
-    status.textContent = 'Logged. Refreshing...';
-    document.getElementById('f-name').value = '';
-    document.getElementById('f-amount').value = '';
-    document.getElementById('f-category').value = '';
-    document.getElementById('f-notes').value = '';
-    document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
-    selectedCard = '';
-    ['nolan','patrick','company'].forEach(c => document.getElementById('btn-'+c).classList.remove('active'));
-    setTimeout(() => { status.textContent = ''; loadExpenses(); }, 900);
-  } catch(e) {
-    status.textContent = 'Failed: ' + e.message;
-  }
-  btn.disabled = false;
+    const body={parent:{database_id:EXPENSES_DB},properties:{'Name':{title:[{text:{content:name}}]},'Amount':{number:amount},'Category':{select:{name:category}},'Card':{select:{name:selectedCard}},'Date':{date:{start:date}},'Type':{select:{name:'Actual'}}}};
+    if(notes) body.properties['Notes']={rich_text:[{text:{content:notes}}]};
+    const resp=await fetch('https://api.notion.com/v1/pages',{method:'POST',headers:HEADERS,body:JSON.stringify(body)});
+    const data=await resp.json();
+    if(!resp.ok) throw new Error(data.message||'API error');
+    status.textContent='Logged. Refreshing...';
+    document.getElementById('f-name').value=''; document.getElementById('f-amount').value='';
+    document.getElementById('f-category').value=''; document.getElementById('f-notes').value='';
+    document.getElementById('f-date').value=new Date().toISOString().slice(0,10);
+    selectedCard=''; ['nolan','patrick','company'].forEach(c=>document.getElementById('btn-'+c).classList.remove('active'));
+    setTimeout(()=>{status.textContent='';loadExpenses();},900);
+  } catch(e){status.textContent='Failed: '+e.message;}
+  btn.disabled=false;
 }
 
 loadExpenses();
